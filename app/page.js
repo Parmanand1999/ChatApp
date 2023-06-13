@@ -1,95 +1,98 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+"use client"
+import { useFormik } from "formik"
+import Link from "next/link";
+import axios from "axios";
+import * as Yup from 'yup';
+import { useState } from "react";
+import { useRouter } from 'next/navigation'
 
-export default function Home() {
+function Home() {
+  const router = useRouter()
+  const [response, setResponse] = useState()
+  const [submitError, setSubmitError] = useState()
+  const initialValues = {
+    username: '',
+    password: '',
+  };
+  const { handleChange, handleSubmit, values, touched, errors } = useFormik({
+
+    initialValues: initialValues,
+    validationSchema: Yup.object({
+      username: Yup.string().email('Invalid email address').required('Email is required'),
+      password: Yup.string().required('Password is required'),
+    }),
+    onSubmit: async (values) => {
+
+      try {
+        const response = await axios.post(
+          'http://0.tcp.in.ngrok.io:17193/api/v1/login/',
+          values
+        );
+        console.log(response.data.message, "response data");
+        setResponse(response.data.message)
+        if (response.data.data.access) {
+          router.push("/chatpage")
+        }
+      } catch (error) {
+        console.log('Error submitting form:', error.response.data.non_field_errors);
+        setSubmitError(error.response.data.non_field_errors);
+
+      }
+    },
+  })
+
+
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.js</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+    <form className=" flex flex-col justify-center items-center  mx-auto mt-[10%] w-[40%]  bg-white shadow-md rounded px-5 pt-4 pb-5 mb-4 " onSubmit={handleSubmit}>
+      <h3 className="text-bold">Login to ChatApp </h3>
+      <h4 className="text-bold text-blue-600">{response} </h4>
+      <h4 className="text-bold text-red-600">{submitError} </h4>
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
+      <div className="mb-1 w-[70%]">
+        <label htmlFor="email" className="block text-gray-700 text-xs  mb-2">
+          Email
+        </label>
+        <input
+          type="email"
+          name="username"
+          id="email"
+          className=" border rounded w-full  px-3 text-gray-700  "
+          onChange={handleChange}
+
         />
+        {errors.username && touched.username ? <div className="text-red-600 w-full text-xs">{errors.username}</div> : null}
       </div>
 
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
+      <div className="mb-2 w-[70%]">
+        <label htmlFor="password" className="block text-gray-700 text-xs  mb-2">
+          Password
+        </label>
+        <input
+          type="password"
+          name="password"
+          id="password"
+          className=" border rounded w-full  px-3 text-gray-700  "
+          onChange={handleChange}
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
+        />
+        {errors.password && touched.password ? <div className="text-red-600 text-xs w-full">{errors.password} </div> : null}
       </div>
-    </main>
+
+      <button
+        type="submit"
+        className="bg-blue-500 hover:bg-blue-700 text-white   px-4 rounded focus:outline-none focus:shadow-outline"
+      >
+        Login
+      </button>
+
+      <Link href="/signup">
+        <span className="text-xs">Don't have account Sign up</span>
+        <hr className="border" />
+      </Link>
+
+    </form>
+
   )
 }
+export default Home
