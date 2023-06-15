@@ -17,28 +17,34 @@ const Chats = () => {
     const [currentChat, setCurrentchat] = useState({})
     const socket = useRef(null)
 
-    console.log(currentChat, "5555555555");
 
-    const userid = JSON.parse(localStorage.getItem("user"))
-
-    console.log(userid, "------")
+    const userid = JSON?.parse(localStorage?.getItem("user"))
     const id = userid.id
-    // useEffect(() => {
-    //     socket.current = new WebSocket(`${endpoint.connection}/${id}/${currentChat.id}`)
-    //     socket.current.addEventListener("open", (event) => {
 
-    //         console.log("socket conneted successfully")
-    //     });
+    useEffect(() => {
+        socket.current = new WebSocket(`${endpoint.connection}/${id}/${currentChat.id}/`)
+        socket.current.addEventListener("open", (event) => {
+            console.log("socket connected successfully");
+        });
 
-    //     socket.current.addEventListener("message", (event) => {
-    //         console.log("Message from server ", event.data);
-    //     });
+        socket.current.addEventListener("message", (event) => {
+            const receivedMessage = JSON.parse(event.data);
+            console.log("Message from server ", receivedMessage, "===========");
+            const newChatHistory = [...chatHistory, receivedMessage];
+            setChatHistory(newChatHistory);
+        });
 
-    //     socket.current.addEventListener("close", (event) => {
-    //         console.log("socket closed ")
-    //     });
+        socket.current.addEventListener("close", (event) => {
+            console.log("socket closed ");
+        });
 
-    // }, [])
+        return () => {
+            // Clean up the WebSocket connection when the component unmounts
+            socket.current.close();
+        };
+
+
+    }, [currentChat]);
 
     const oneToOneConnection = (data) => {
         setCurrentchat(data)
@@ -46,43 +52,33 @@ const Chats = () => {
             ...input,
             receiver: data.id
         })
-        socket.current = new WebSocket(`${endpoint.connection}/${id}/${data.id}/`)
-        socket.current.addEventListener("open", (event) => {
-
-            console.log("socket conneted successfully")
-        });
-
-        socket.current.addEventListener("message", (event) => {
-            console.log("Message from server ", event.data);
-        });
-
-        socket.current.addEventListener("close", (event) => {
-            console.log("socket closed ")
-        });
     }
 
-
     const handleSendMessage = () => {
+
+        console.log(input, "------------")
         if (input.message.trim() !== '') {
             const newChatHistory = [...chatHistory, {
                 id: 123,
                 username: "you",
                 datetime: "20 May 18:01",
                 msg: input.message,
-
             }];
             setChatHistory(newChatHistory);
+            //clear field
             setInput({
                 ...input,
                 message: ''
             });
+
+            // Send the message through the socket
+            socket.current.send(JSON.stringify(input));
         }
+    };
 
 
-        setChatStore(...chatstore, input)
 
-    }
-    // console.log(chatstore, " 9999999999");
+
 
     const handleInputChange = (e) => {
         setInput({
@@ -105,7 +101,6 @@ const Chats = () => {
     };
 
 
-    console.log(currentChat, "eshdgfuiknifd");
 
     return (
         <div className='bg-gray-200 w-full h-full'>
@@ -118,8 +113,6 @@ const Chats = () => {
                         <p className='mx-1 mt-2 text-blue-400 font-semibold'>{currentChat.first_name}</p>
                         <p className=' mt-2 text-blue-400 font-semibold'>{currentChat.last_name}</p>
                     </div>
-
-
 
                     <div className="container h-96 overflow-y-auto px-4 " ref={myDivRef}>
                         {Object.keys(currentChat).length ? <div className="mb-4 overflow-y-auto">

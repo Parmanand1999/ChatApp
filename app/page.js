@@ -28,7 +28,6 @@ function Home() {
         const response = await axios.post(endpoint.login, values);
 
         setResponse(response.data.message)
-        console.log(response.data.data, "logdata");
         localStorage.setItem('user', JSON.stringify(response.data.data))
         if (response.data.data.access) {
           router.push("/chatpage")
