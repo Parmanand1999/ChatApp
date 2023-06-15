@@ -5,8 +5,9 @@ import axios from "axios";
 import * as Yup from 'yup';
 import { useState } from "react";
 import { useRouter } from 'next/navigation'
-
+import { endpoint } from "@/endpoints";
 function Home() {
+
   const router = useRouter()
   const [response, setResponse] = useState()
   const [submitError, setSubmitError] = useState()
@@ -14,7 +15,7 @@ function Home() {
     username: '',
     password: '',
   };
-  const { handleChange, handleSubmit, values, touched, errors } = useFormik({
+  const { handleChange, handleSubmit, values, handleBlur, touched, errors } = useFormik({
 
     initialValues: initialValues,
     validationSchema: Yup.object({
@@ -24,17 +25,15 @@ function Home() {
     onSubmit: async (values) => {
 
       try {
-        const response = await axios.post(
-          'http://0.tcp.in.ngrok.io:17193/api/v1/login/',
-          values
-        );
-        console.log(response.data.message, "response data");
+        const response = await axios.post(endpoint.login, values);
+
         setResponse(response.data.message)
+        console.log(response.data.data, "logdata");
+        localStorage.setItem('user', JSON.stringify(response.data.data))
         if (response.data.data.access) {
           router.push("/chatpage")
         }
       } catch (error) {
-        console.log('Error submitting form:', error.response.data.non_field_errors);
         setSubmitError(error.response.data.non_field_errors);
 
       }
@@ -59,6 +58,7 @@ function Home() {
           id="email"
           className=" border rounded w-full  px-3 text-gray-700  "
           onChange={handleChange}
+          onBlur={handleBlur}
 
         />
         {errors.username && touched.username ? <div className="text-red-600 w-full text-xs">{errors.username}</div> : null}
@@ -74,6 +74,7 @@ function Home() {
           id="password"
           className=" border rounded w-full  px-3 text-gray-700  "
           onChange={handleChange}
+          onBlur={handleBlur}
 
         />
         {errors.password && touched.password ? <div className="text-red-600 text-xs w-full">{errors.password} </div> : null}
