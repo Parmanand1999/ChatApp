@@ -3,46 +3,58 @@ import { useEffect, useRef, useState } from 'react';
 import SideNav from '@/app/componant/nav';
 import { BsPersonCircle } from 'react-icons/bs';
 import { endpoint } from '@/endpoints';
-
-
+import axios from 'axios';
 
 const Chats = () => {
+
     const [input, setInput] = useState({
         "action": "message",
         "message": "",
         "receiver": ""
     });
-    const [chatstore, setChatStore] = useState([])
-    const [chatHistory, setChatHistory] = useState(chats);
+    const [chatHistory, setChatHistory] = useState([])
     const [currentChat, setCurrentchat] = useState({})
+
     const socket = useRef(null)
 
 
-    const userid = JSON?.parse(localStorage?.getItem("user"))
-    const id = userid.id
-
+    const userid = localStorage.getItem("user") ? JSON?.parse(localStorage?.getItem("user")) : null
+    const id = userid?.id
     useEffect(() => {
-        socket.current = new WebSocket(`${endpoint.connection}/${id}/${currentChat.id}/`)
-        socket.current.addEventListener("open", (event) => {
-            console.log("socket connected successfully");
-        });
+        try {
+            axios.get(`${endpoint.roomId}/?member_1=${id}&member_2=${currentChat.id}`).then((res) => {
+                if (res.data.roomId) {
 
-        socket.current.addEventListener("message", (event) => {
-            const receivedMessage = JSON.parse(event.data);
-            console.log("Message from server ", receivedMessage, "===========");
-            const newChatHistory = [...chatHistory, receivedMessage];
-            setChatHistory(newChatHistory);
-        });
+                    axios.get(`${endpoint.messages}/${res.data.id}/messages`).then((res) => {
+                        setChatHistory(res.data)
+                    })
+                    socket.current = new WebSocket(`${endpoint.connection}/${id}/${currentChat.id}/`)
+                    socket.current.addEventListener("open", (event) => {
+                        console.log("socket connected successfully");
+                    });
 
-        socket.current.addEventListener("close", (event) => {
-            console.log("socket closed ");
-        });
+                    const temp = socket.current.addEventListener("message", (event) => {
+                        const receivedMessage = JSON.parse(event.data);
 
-        return () => {
-            // Clean up the WebSocket connection when the component unmounts
-            socket.current.close();
-        };
+                        axios.get(`${endpoint.messages}/${res.data.id}/messages`).then((res) => {
+                            setChatHistory(res.data)
+                        })
 
+                    });
+
+                    socket.current.addEventListener("close", (event) => {
+                        console.log("socket closed ");
+                    });
+
+                    return () => {
+                        socket.current.close();
+                    };
+                }
+            })
+        } catch (error) {
+            console.log(error);
+
+        }
 
     }, [currentChat]);
 
@@ -52,32 +64,18 @@ const Chats = () => {
             ...input,
             receiver: data.id
         })
+
+
+
     }
 
     const handleSendMessage = () => {
-
-        console.log(input, "------------")
-        if (input.message.trim() !== '') {
-            const newChatHistory = [...chatHistory, {
-                id: 123,
-                username: "you",
-                datetime: "20 May 18:01",
-                msg: input.message,
-            }];
-            setChatHistory(newChatHistory);
-            //clear field
-            setInput({
-                ...input,
-                message: ''
-            });
-
-            // Send the message through the socket
-            socket.current.send(JSON.stringify(input));
-        }
+        setInput({
+            ...input,
+            message: ''
+        });
+        socket.current.send(JSON.stringify(input));
     };
-
-
-
 
 
     const handleInputChange = (e) => {
@@ -116,16 +114,19 @@ const Chats = () => {
 
                     <div className="container h-96 overflow-y-auto px-4 " ref={myDivRef}>
                         {Object.keys(currentChat).length ? <div className="mb-4 overflow-y-auto">
-                            {chatHistory.map((chat, index) => (
+
+                            {chatHistory.map((chat, index,) => (
                                 <>
-                                    {chat?.username !== "you" ? <div
+                                    {chat?.receiver === userid?.id ? <div
                                         key={index}
+
                                         className="flex items-center py-2 w-[50%]"
                                     >
 
                                         <div className="ml-2 flex flex-col">
 
-                                            <span className="text-gray-700 bg-orange-300 p-2 rounded-md">{chat.msg}</span>
+                                            <span className="text-gray-700 bg-orange-300 p-2 rounded-md">{chat.message
+                                            }</span>
                                         </div>
                                     </div> :
 
@@ -136,7 +137,7 @@ const Chats = () => {
                                             <div className="ml-2 flex self-end">
 
                                             </div>
-                                            <span className="text-gray-700 bg-blue-300 rounded-md p-2 text-right self-end break-all w-[50%]">{chat.msg}</span>
+                                            <span className="text-gray-700 bg-blue-300 rounded-md p-2 text-right self-end break-all w-[50%]">{chat.message}</span>
                                         </div>
 
                                     }
@@ -186,58 +187,14 @@ const chats = [
         datetime: "20 May 18:01",
         msg: "We invite you to the reserved Loft Industrial apartment Address Main street 6/25 (top floor, door on the left). The apartment is available from 15.",
     },
-    {
-        id: 123,
-        username: "Jane Cooper",
-        datetime: "20 May 18:01",
-        msg: "We invite you to the reserved Loft Industrial apartment Address Main street 6/25 (top floor, door on the left). The apartment is available from 15.",
-    },
+
+
+
     {
         id: 123,
         username: "you",
         datetime: "20 May 18:01",
         msg: "We invite you to the reserved Loft Industrial apartment Address Main street 6/25 (top floor, door on the left). The apartment is available from 15.",
     },
-    {
-        id: 123,
-        username: "you",
-        datetime: "20 May 18:01",
-        msg: "We invite you to the reserved Loft Industrial apartment Address Main street 6/25 (top floor, door on the left). The apartment is available from 15.",
-    },
-    {
-        id: 123,
-        username: "you",
-        datetime: "20 May 18:01",
-        msg: "We invite you to the reserved Loft Industrial apartment Address Main street 6/25 (top floor, door on the left). The apartment is available from 15.",
-    },
-    {
-        id: 123,
-        username: "you",
-        datetime: "20 May 18:01",
-        msg: "We invite you to the reserved Loft Industrial apartment Address Main street 6/25 (top floor, door on the left). The apartment is available from 15.",
-    },
-    {
-        id: 123,
-        username: "you",
-        datetime: "20 May 18:01",
-        msg: "We invite you to the reserved Loft Industrial apartment Address Main street 6/25 (top floor, door on the left). The apartment is available from 15.",
-    },
-    {
-        id: 123,
-        username: "Jane Cooper",
-        datetime: "20 May 18:01",
-        msg: "We invite you to the reserved Loft Industrial apartment Address Main street 6/25 (top floor, door on the left). The apartment is available from 15.",
-    },
-    {
-        id: 123,
-        username: "Jane Cooper",
-        datetime: "20 May 18:01",
-        msg: "We invite you to the reserved Loft Industrial apartment Address Main street 6/25 (top floor, door on the left). The apartment is available from 15.",
-    },
-    {
-        id: 123,
-        username: "Jane Cooper",
-        datetime: "20 May 18:01",
-        msg: "dvhjbjsm",
-    },
+
 ];

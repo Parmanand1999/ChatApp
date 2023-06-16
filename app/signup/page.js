@@ -9,7 +9,7 @@ import { endpoint } from '@/endpoints';
 import { useRouter } from 'next/navigation';
 
 const Signup = () => {
-   const router = useRouter()
+    const router = useRouter()
     const [response, setResponse] = useState()
     const [submitError, setSubmitError] = useState()
     const [submitErrorMobilNum, setSubmitErrorMobilNum] = useState()
@@ -38,12 +38,11 @@ const Signup = () => {
             const { gender, ...data } = values;
             data.gender = parseInt(gender);
             try {
-                const response = await axios.post(endpoint.signup,data);
+                const response = await axios.post(endpoint.signup, data);
                 if (response.data.message) {
                     router.push("/  ")
                 }
                 setResponse(response.data.message)
-                console.log(response.data.message, "signup");
             } catch (error) {
                 setSubmitError(error.response.data.email);
                 setSubmitErrorMobilNum(error.response.data.mobile_no);

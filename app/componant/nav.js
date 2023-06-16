@@ -9,24 +9,7 @@ const SideNav = ({ setCurrentchat, oneToOneConnection }) => {
     const [userData, setUserData] = useState([])
     const [searchField, setSearchField] = useState("");
     const [filteredUserData, setFilteredUserData] = useState([]);
-    // useEffect(() => {
 
-    //     getChats()
-
-    // }, [])
-
-    // const getChats = async () => {
-    //     try {
-    //         const res = await axios.get(endpoint.getUser)
-    //         if (res.status == 200) {
-    //             setUserData(res.data);
-    //             setFilteredUserData(res.data);
-    //         }
-
-    //     } catch (error) {
-    //         console.log(err, "EERRERRREEE")
-    //     }
-    // }
     const handelSearch = async (e) => {
         const searchValue = e.target.value;
         setSearchField(e.target.value)

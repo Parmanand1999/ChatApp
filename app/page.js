@@ -31,6 +31,8 @@ function Home() {
         localStorage.setItem('user', JSON.stringify(response.data.data))
         if (response.data.data.access) {
           router.push("/chatpage")
+        } else {
+          router.push("/")
         }
       } catch (error) {
         setSubmitError(error.response.data.non_field_errors);
@@ -42,7 +44,7 @@ function Home() {
 
 
   return (
-    <form className=" flex flex-col justify-center items-center  mx-auto mt-[10%] w-[40%]  bg-white shadow-md rounded px-5 pt-4 pb-5 mb-4 " onSubmit={handleSubmit}>
+    <form className=" flex flex-col justify-center items-center cursor-default mx-auto mt-[10%] w-[40%]  bg-white shadow-md rounded px-5 pt-4 pb-5 mb-4 " onSubmit={handleSubmit}>
       <h3 className="text-bold">Login to ChatApp </h3>
       <h4 className="text-bold text-blue-600">{response} </h4>
       <h4 className="text-bold text-red-600">{submitError} </h4>
@@ -81,13 +83,13 @@ function Home() {
 
       <button
         type="submit"
-        className="bg-blue-500 hover:bg-blue-700 text-white   px-4 rounded focus:outline-none focus:shadow-outline"
+        className="bg-blue-500 hover:bg-blue-700 text-white  cursor-default px-4 rounded focus:outline-none focus:shadow-outline"
       >
         Login
       </button>
 
       <Link href="/signup">
-        <span className="text-xs">Don't have account Sign up</span>
+        <span className="text-xs cursor-pointer">Don't have account Sign up</span>
         <hr className="border" />
       </Link>
 
