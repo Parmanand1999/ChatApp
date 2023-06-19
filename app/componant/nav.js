@@ -4,17 +4,18 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react'
 import { AiOutlineSearch } from 'react-icons/ai';
 import { BsPersonCircle } from 'react-icons/bs';
-const SideNav = ({ setCurrentchat, oneToOneConnection }) => {
+const SideNav = ({ oneToOneConnection }) => {
     const [userData, setUserData] = useState([])
     const [previousChatUsers, setPreviousChatUser] = useState([])
     const [searchField, setSearchField] = useState("");
     const [filteredUserData, setFilteredUserData] = useState([]);
-    const { id } = JSON?.parse(localStorage?.getItem("user"))
+
+
     useEffect(() => {
         getPreviousChatUsers()
     }, [])
-
     const getPreviousChatUsers = async () => {
+        const { id } = JSON.parse(localStorage.getItem('user'))
         const response = await axios(`${endpoint.chats}/${id}/chats`)
         setPreviousChatUser(response.data)
     }
@@ -23,14 +24,12 @@ const SideNav = ({ setCurrentchat, oneToOneConnection }) => {
 
     const handelSearch = async (e) => {
         const searchValue = e.target.value;
-        console.log("searchField::", searchValue);
         setSearchField(e.target.value)
         try {
             const res = await axios.get(`${endpoint.getUser}/?name=${searchValue}`)
             if (res.status == 200) {
                 setUserData(res.data);
                 setFilteredUserData(res.data);
-                console.log(res.data, "restdata");
             }
 
         } catch (error) {
@@ -68,11 +67,6 @@ const SideNav = ({ setCurrentchat, oneToOneConnection }) => {
                             oneToOneConnection(data)
                         }}>
 
-
-                            {/* <img alt='' className='border-2 rounded-[50%] w-10 h-10 ' /> */}
-                            {/* <div className=' flex  '> */}
-
-
                             <div className=' w-10 h-10 '>
                                 <BsPersonCircle className='w-8 h-8' />
 
@@ -82,7 +76,7 @@ const SideNav = ({ setCurrentchat, oneToOneConnection }) => {
 
                                 <p className=' sm:mx-3 overflow-hidden sm:overflow-visible text-[12px] '>{data.email}</p>
                             </div >
-                            {/* </div> */}
+
                         </div>
                     )}
                     {!!filteredUserData.length && <><p>Previous Chats</p>
@@ -93,11 +87,6 @@ const SideNav = ({ setCurrentchat, oneToOneConnection }) => {
                             oneToOneConnection(data)
                         }}>
 
-
-                            {/* <img alt='' className='border-2 rounded-[50%] w-10 h-10 ' /> */}
-                            {/* <div className=' flex  '> */}
-
-
                             <div className=' w-10 h-10 '>
                                 <BsPersonCircle className='w-8 h-8' />
 
@@ -107,7 +96,7 @@ const SideNav = ({ setCurrentchat, oneToOneConnection }) => {
 
                                 <p className=' sm:mx-3 overflow-hidden sm:overflow-visible text-[12px] '>{data.email}</p>
                             </div >
-                            {/* </div> */}
+
                         </div>
                     )}
                 </div>
@@ -118,29 +107,3 @@ const SideNav = ({ setCurrentchat, oneToOneConnection }) => {
 }
 
 export default SideNav
-// const chats = [
-//     {
-//         id: 123,
-//         username: "Ram",
-//         datetime: "20 May 18:01",
-
-//     },
-//     {
-//         id: 123,
-//         username: "you",
-//         datetime: "20 May 18:01",
-
-//     },
-//     {
-//         id: 123,
-//         username: "Jane Cooper",
-//         datetime: "20 May 18:01",
-
-//     },
-//     {
-//         id: 123,
-//         username: "you",
-//         datetime: "20 May 18:01",
-
-
-

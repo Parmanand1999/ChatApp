@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import SideNav from '@/app/componant/nav';
 import { BsPersonCircle } from 'react-icons/bs';
 import { endpoint } from '@/endpoints';
@@ -14,14 +14,13 @@ const Chats = () => {
     });
     const [chatHistory, setChatHistory] = useState([])
     const [userChat, setUserChat] = useState({})
+    const [userId, setUserId] = useState(null)
 
     const socket = useRef(null)
 
-    console.log(chatHistory, "chatHistory")
-    const userid = localStorage.getItem("user") ? JSON?.parse(localStorage?.getItem("user")) : null
-    const id = userid?.id
-    console.log(userid, "loguser");
-    useEffect(() => {
+    useLayoutEffect(() => {
+        const { id } = JSON.parse(localStorage.getItem('user'))
+        setUserId(id);
         try {
             axios.get(`${endpoint.roomId}/?member_1=${id}&member_2=${userChat.id}`).then((res) => {
                 console.log(res, "message");
@@ -118,9 +117,9 @@ const Chats = () => {
                         {Object.keys(userChat).length ? <div className="mb-4 overflow-y-auto">
 
                             {chatHistory.map((chat, index,) => {
-                                console.log(userid?.first_name && userid?.last_name);
+                                // console.log(userid?.first_name && userid?.last_name);
                                 return <>
-                                    {chat.userName !== `${userid.first_name} ${userid.last_name}` ?
+                                    {chat.userName !== `${userId.first_name} ${userId.last_name}` ?
                                         <div
                                             key={index}
                                             className="flex justify-end flex-col py-2 ext-right "
