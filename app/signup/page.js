@@ -117,7 +117,7 @@ const Signup = () => {
                             className="form-radio"
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            checked={values.gender === '1'}
+                            checked={values.gender === '2'}
                         />
                         <span className="ml-2 text-xs">Female</span>
                     </label>
