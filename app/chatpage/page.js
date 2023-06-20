@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import SideNav from '@/app/componant/nav';
 import { BsPersonCircle } from 'react-icons/bs';
 import { endpoint } from '@/endpoints';
@@ -14,48 +14,49 @@ const Chats = () => {
     });
     const [chatHistory, setChatHistory] = useState([])
     const [userChat, setUserChat] = useState({})
-    const [userId, setUserId] = useState(null)
-
+    const [userLogData, setUserLogData] = useState(null)
     const socket = useRef(null)
 
-    useLayoutEffect(() => {
+    useEffect(() => {
         const { id } = JSON.parse(localStorage.getItem('user'))
-        setUserId(id);
-        try {
-            axios.get(`${endpoint.roomId}/?member_1=${id}&member_2=${userChat.id}`).then((res) => {
-                console.log(res, "message");
-                if (res.data.roomId) {
-
-                    axios.get(`${endpoint.messages}/${res.data.id}/messages`).then((res) => {
-                        setChatHistory(res.data)
-                    })
-                    socket.current = new WebSocket(`${endpoint.connection}/${id}/${userChat.id}/`)
-                    socket.current.addEventListener("open", (event) => {
-                        console.log("socket connected successfully");
-                    });
-
-                    const temp = socket.current.addEventListener("message", (event) => {
-                        const receivedMessage = JSON.parse(event.data);
+        if (userChat.id) {
+            try {
+                axios.get(`${endpoint.roomId}/?member_1=${id}&member_2=${userChat.id}`).then((res) => {
+                    console.log(res, "message");
+                    if (res.data.roomId) {
 
                         axios.get(`${endpoint.messages}/${res.data.id}/messages`).then((res) => {
                             setChatHistory(res.data)
                         })
+                        socket.current = new WebSocket(`${endpoint.connection}/${id}/${userChat.id}/`)
+                        socket.current.addEventListener("open", (event) => {
+                            console.log("socket connected successfully");
+                        });
 
-                    });
+                        const temp = socket.current.addEventListener("message", (event) => {
+                            const receivedMessage = JSON.parse(event.data);
 
-                    socket.current.addEventListener("close", (event) => {
-                        console.log("socket closed ");
-                    });
+                            axios.get(`${endpoint.messages}/${res.data.id}/messages`).then((res) => {
+                                setChatHistory(res.data)
+                            })
 
-                    return () => {
-                        socket.current.close();
-                    };
-                }
-            })
-        } catch (error) {
-            console.log(error);
+                        });
 
+                        socket.current.addEventListener("close", (event) => {
+                            console.log("socket closed ");
+                        });
+
+                        return () => {
+                            socket.current.close();
+                        };
+                    }
+                })
+            } catch (error) {
+                console.log(error);
+
+            }
         }
+
 
     }, [userChat]);
 
@@ -98,7 +99,11 @@ const Chats = () => {
             behavior: "smooth",
         });
     };
-
+    useEffect(() => {
+        const userlogin = JSON.parse(localStorage.getItem('user'))
+        console.log(userlogin, "loguserdata");
+        setUserLogData(userlogin)
+    }, [])
 
 
     return (
@@ -118,8 +123,10 @@ const Chats = () => {
 
                             {chatHistory.map((chat, index,) => {
                                 // console.log(userid?.first_name && userid?.last_name);
+
                                 return <>
-                                    {chat.userName !== `${userId.first_name} ${userId.last_name}` ?
+
+                                    {chat.userName !== `${userLogData.first_name} ${userLogData.last_name}` ?
                                         <div
                                             key={index}
                                             className="flex justify-end flex-col py-2 ext-right "
