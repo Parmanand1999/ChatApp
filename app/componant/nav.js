@@ -15,9 +15,13 @@ const SideNav = ({ oneToOneConnection }) => {
         getPreviousChatUsers()
     }, [])
     const getPreviousChatUsers = async () => {
-        const { id } = JSON.parse(localStorage.getItem('user'))
-        const response = await axios(`${endpoint.chats}/${id}/chats`)
-        setPreviousChatUser(response.data)
+        const logid = localStorage.getItem("user") ? JSON.parse(localStorage?.getItem("user")) : ""
+        const id = logid.id
+        if (logid.id) {
+            const response = await axios(`${endpoint.chats}/${id}/chats`)
+            setPreviousChatUser(response.data)
+        }
+
     }
 
 

@@ -1,20 +1,19 @@
 "use client"
-import { useRouter } from 'next/navigation';
+import { redirect, useRouter } from 'next/navigation';
 import React, { useLayoutEffect } from 'react'
 
 const Loading = () => {
-    const router = useRouter();
 
     useLayoutEffect(() => {
         const useraccess = localStorage.getItem("user") ? JSON.parse(localStorage?.getItem("user")) : null
         const access = useraccess?.access
         if (!access) {
-            router.push("/")
+            redirect("/")
         }
     })
 
     return (
-        <div className='flex mx-auto mt-[50%]'>Loading...</div>
+        <div className='flex  ml-[50%] mt-[50%]'>Loading...</div>
     )
 }
 
